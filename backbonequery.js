@@ -9,6 +9,33 @@
 	// get a reference to Backbone
 	var Backbone = this.Backbone;
 
+	/**
+	 * General model filter
+	 * @param {object} model the current mode we're looking at
+	 * @param {function|boolean|object|integer|string} filter the type of filter to look by
+	 * @param {string} attr the attribute to filter on
+	 **/
+	var modelFilter = function(model, filter, attr) {
+		if(_.isFunction(filter)) {
+			return filter(model[attr]);
+		// just do a direct check
+		} else {
+			return model[attr] === filter;
+		}
+	};
+
+	/**
+	 * Iterator for going over the models of the Collection
+	 * @param search {object} set of filters to apply on the modelFilterIterator
+	 * @param model {object} the current collection model to look at
+	 * @param index {number} the number we're at in the collection
+	 **/
+	var modelFilterIterator = function(search, model, index) {
+		var set = [];
+		_.each(search, _.bind(modelFilter, this, model));
+		return set;
+	};
+
 	// if Backbone || Backbone.js is falsy, don't do anything
 	if(Backbone && Backbone.Collection) {
 
@@ -22,18 +49,14 @@
 			 * @return {array} of results, could be empty to mean no results found
 			 **/
 			query: function(search){
-				var set = [];
 				var attribute;
 				// need to be some models
 				if(search && this.models) {
 					_.each(this.models, function(){
-						
-						_.each(search, function(attr, val) {
-
-						});
+						return _.bind(modelIterator, this, search);
 					});
 				} else {
-					return set;
+					return [];
 				}
 			}
 			
